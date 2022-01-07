@@ -9,8 +9,8 @@ using UnityEngine.SceneManagement;
 
 namespace ReTimeline.Editor
 {
-    [EditorWindowTitle(title = "ReTimeline", useTypeNameAsIconName = true)]
-    public class ReTimelineWindow : EditorWindow
+    [EditorWindowTitle(title = "ReTimeline", useTypeNameAsIconName = false)]
+    public class ReTimelineWindow : EditorWindow, IHasCustomMenu
     {
         EditorGUIUtility.EditorLockTracker m_LockTracker = new EditorGUIUtility.EditorLockTracker();
         public bool locked
@@ -36,10 +36,20 @@ namespace ReTimeline.Editor
             m_LockTracker.ShowButton(r, DirectorStyles.Instance.lockButton, false);
         }
 
+        public virtual void AddItemsToMenu(GenericMenu menu)
+        {
+            m_LockTracker.AddItemsToMenu(menu, false); 
+        }
+
         private void OnEnable()
         {
             if (instance == null)
                 instance = this;
+        }
+
+        private void OnGUI()
+        {
+
         }
 
         [MenuItem("Window/Sequencing/ReTimeline", false, 2)]
