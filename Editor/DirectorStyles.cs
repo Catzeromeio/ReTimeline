@@ -7,6 +7,8 @@ namespace ReTimeline.Editor
 {
     public class DirectorStyles
     {
+        public const string resourcesPath = "Packages/com.catzero.retimeline/Editor/StyleSheets/res/";
+
         public GUIStyle groupBackground;
         public GUIStyle displayBackground;
         public GUIStyle fontClip;
@@ -53,6 +55,13 @@ namespace ReTimeline.Editor
 
         static internal DirectorStyles s_Instance;
 
+        DirectorNamedColor m_DarkSkinColors;
+        DirectorNamedColor m_LightSkinColors;
+        DirectorNamedColor m_DefaultSkinColors;
+
+        const string k_DarkSkinPath = resourcesPath + "Timeline_DarkSkin.txt";
+        const string k_LightSkinPath = resourcesPath + "Timeline_LightSkin.txt";
+
         public static DirectorStyles Instance
         {
             get
@@ -75,7 +84,9 @@ namespace ReTimeline.Editor
 
         public void Initialize()
         {
-
+            m_DefaultSkinColors = CreateDefaultSkin();
+            m_DarkSkinColors = LoadColorSkin(k_DarkSkinPath);
+            m_LightSkinColors = LoadColorSkin(k_LightSkinPath);
         }
 
         void LoadStyles()
@@ -127,6 +138,37 @@ namespace ReTimeline.Editor
         public static GUIStyle GetGUIStyle(string s)
         {
             return EditorStyles.FromUSS(s);
+        }
+
+        static DirectorNamedColor CreateDefaultSkin()
+        {
+            var nc = ScriptableObject.CreateInstance<DirectorNamedColor>();
+            nc.SetDefault();
+            return nc;
+        }
+
+        DirectorNamedColor LoadColorSkin(string path)
+        {
+            var asset = EditorGUIUtility.LoadRequired(path) as TextAsset;
+
+            if (asset != null && !string.IsNullOrEmpty(asset.text))
+            {
+                return DirectorNamedColor.CreateAndLoadFromText(asset.text);
+            }
+
+            return m_DefaultSkinColors;
+        }
+
+        public DirectorNamedColor customSkin
+        {
+            get { return EditorGUIUtility.isProSkin ? m_DarkSkinColors : m_LightSkinColors; }
+            internal set
+            {
+                if (EditorGUIUtility.isProSkin)
+                    m_DarkSkinColors = value;
+                else
+                    m_LightSkinColors = value;
+            }
         }
     }
 
